@@ -1,0 +1,143 @@
+Progra.cs - 
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Exercise1       //DO NOT Change the namespace name
+{
+    public class Program         //DO NOT Change the class name
+    {
+        static void Main(string[] args)
+        {
+            Course c=new Course();
+            CourseContext x=new CourseContext();
+            
+            CourseRepository cr=new CourseRepository(x);
+            CourseRepository cr1=new CourseRepository(x);
+            Console.WriteLine("Enter Course Id");
+            c.CourseId=Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Enter Course Name");
+            c.CourseName=Console.ReadLine();
+            Console.WriteLine("Enter Duration");
+            c.Duration=Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Enter Course Fee");
+            c.CourseFee=Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Enter Instructor Name");
+            c.InstructorName=Console.ReadLine();
+            cr.InsertCourse(c);
+            IList<Course> ck=cr.GetCourseList();
+            foreach(Course cu in ck)
+            {
+              Console.WriteLine(cu);
+            }
+            Console.WriteLine(ck);
+            Console.WriteLine("Get Course Details By id");
+            int id=Convert.ToInt32(Console.ReadLine());
+            Course c1=cr1.GetCourseByID(id);
+            if(c1!=null)
+        {
+          Console.WriteLine(c1);
+        }
+            Console.WriteLine("Update Course Fee");
+            int id1=Convert.ToInt32(Console.ReadLine());
+            double fee=Convert.ToDouble(Console.ReadLine());
+            Course an=cr1.UpdateCourseFee(id1,fee);
+        }
+    }
+}
+
+
+CourseRepository.cs - 
+
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+
+namespace Exercise1             //DO NOT Change the namespace name
+{
+   public class CourseRepository      //DO NOT Change the class name
+    {
+        //DO NOT Change the variable or method signature. Add only the required code inside the method.
+        
+        private CourseContext context;
+        
+        public CourseRepository(CourseContext context)
+        {
+            this.context=context;
+            //Implement code here
+        }
+        
+        public IList<Course> GetCourseList()
+        {
+             DbSet<Course> cours=context.Courses;
+             IList<Course> courses=cours.ToList<Course>();
+             return courses;
+            //Implement code here
+        }
+
+        public Course GetCourseByID(int courseId)
+        {
+           DbSet<Course> cos=context.Courses;
+           Course cs=cos.Find(courseId);
+           return cs;
+
+             //Implement code here
+        }
+
+        public void InsertCourse(Course course)
+        {
+            
+            context.Courses.Add(course);
+            Console.WriteLine("Details Added Successfully");
+            context.SaveChanges();
+             //Implement code here
+        }
+
+        public Course UpdateCourseFee(int id, double fee)
+        {
+           DbSet<Course> anu=context.Courses;
+           Course cs=anu.Find(id);
+           if(cs!=null)
+          {
+          cs.CourseFee=fee;
+        if(context.SaveChanges()>0)
+        {
+         Console.WriteLine("updated Successfully");
+        }
+      }
+
+      return cs;
+             //Implement code here
+        }
+    }
+}
+
+
+CourseContext.cs - 
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data.Entity;
+
+namespace Exercise1          //DO NOT Change the namespace name
+{
+  public  class CourseContext:DbContext        //DO NOT Change the class name
+    {
+        //DO NOT Change the Context name 'CourseConnectionString'
+        public CourseContext() : base("name=CourseConnectionString"){}
+        
+        
+        //Declare 'Courses' of type Dbset and add neccessary declaration code.
+        public virtual DbSet< Course > Courses
+        {
+            get;
+            set;
+        }
+    }
+}
