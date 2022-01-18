@@ -1,0 +1,159 @@
+BookUtil.cs -
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Exercise1              //DO NOT change the namespace name
+{
+    public class BookUtil         //DO NOT change the class name 
+    {
+         
+        public Book AddBook(Book book)    //DO NOT change the method Name and Signature
+        {
+            Book b1=null;
+            //Implement code to insert the book entity to database
+            using (var context = new LibraryContext()) 
+            {
+                b1=context.Books.Add(book); 
+                context.SaveChanges();
+             }
+             return b1;
+        }
+
+
+        public List<Book> GetBookByGenre(String Genre)   //DO NOT change the method Name and Signature
+        {
+            List<Book> ak=null;
+            using (var context = new LibraryContext()) 
+            {
+            var st=(from s in context.Books where s.BookGenre==Genre select s).ToList<Book>();
+            ak=st;
+                
+            }
+            return ak;
+            //Implement code to get the book entity from database based on Genre
+        }
+        public List<Book> GetBooksList() //DO NOT change the method Name and Signature
+        {
+             //Implement code to get the book list from database
+           List<Book> ak=null;
+            using (var context = new LibraryContext()) 
+            {
+            var st=(from s in context.Books  select s).ToList<Book>();
+            ak=st;
+                
+            }
+            return ak;
+        }
+        public Book UpdateBookPrice(int NewPrice,int Bookid)   //DO NOT change the method Name and Signature
+        {
+            Book damu=null;
+             //Implement code to update the book entity 
+             using (var context = new LibraryContext()) 
+             {
+               var bo = (from d in context.Books where d.BookId == Bookid select d).Single();
+               bo.BookPrice = NewPrice;
+               damu=bo;
+               context.SaveChanges();
+             }
+             return damu;
+        
+        }
+
+        public Book DeleteBook(int BookId)  //DO NOT change the method Name and Signature
+        {
+            Book w=null;
+            //Implement code to delete the book entity by Id
+            using (var context = new LibraryContext()) 
+            {
+               var bay=context.Books.Find(BookId);
+               Console.WriteLine(bay.BookId);
+               w=context.Books.Remove(bay);
+                context.SaveChanges();
+            }
+            return w;
+        }
+
+    }
+}
+
+
+LibraryContext.cs - 
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Core.Objects;
+
+namespace Exercise1                      //DO NOT change the namespace name
+{
+    class LibraryContext:DbContext        //DO NOT change the class name
+    {
+
+        //DO NOT change the context name
+        public LibraryContext() : base("name=BookStore")
+        {
+               
+        }
+         public virtual DbSet<Book> Books
+            {
+                get;
+                set;
+            }
+       
+       
+        //Implement Books of type DbSet
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            //Implement code to make 'Book_id' required in entity 'Book' and table name as mentioned in description 
+           //throw new UnintentionalCodeFirstException();
+        }
+    }
+}
+
+
+Program.cs - 
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Exercise1   //DO NOT change the namespace name
+{
+    public class Program   //DO NOT change the class name
+    {
+        static void Main(string[] args)      //DO NOT change the 'Main' method signature
+        {
+            //Implement code here
+            Book b=new Book();
+            BookUtil bu=new BookUtil();
+            Console.WriteLine("Enter BookId");
+            b.BookId=Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Enter Book Name");
+            b.BookName=Console.ReadLine();
+            Console.WriteLine("Enter Book Author");
+            b.BookAuthor=Console.ReadLine();
+            Console.WriteLine("Enter Book Genre");
+            b.BookGenre=Console.ReadLine();
+            Console.WriteLine("Enter Book Price");
+            b.BookPrice=Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Enter Book Details By Genre");
+            string g=Console.ReadLine();
+            List<Book> sh=new List<Book>();
+            sh=bu.GetBookByGenre(g);
+            Console.WriteLine("Enter Book Id");
+            int id=Convert.ToInt32(Console.ReadLine());
+            Book qw=bu.DeleteBook(id);
+        }
+    }
+}
