@@ -1,0 +1,679 @@
+HOMECONTROLLER.CS
+
+using ASP_EF_App1.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ASP_EF_App1.Controllers
+{
+    public class HomeController : Controller
+    {
+
+        private UtilRepository repository;
+       public HomeController()
+        {
+           repository = new UtilRepository();
+        }
+
+
+        
+
+        // GET: Home
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+
+      
+    }
+}
+
+
+
+
+
+SALONCONTROLLER.CS
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
+using System.Linq;
+using System.Net;
+using System.Web;
+using System.Web.Mvc;
+using ASP_EF_App1.Models;
+
+namespace ASP_EF_App1.Controllers
+{
+    public class SalonController : Controller
+    {
+        // Fill code here
+        SalonContext db=new SalonContext();
+        SalonContext context=new SalonContext();
+        private UtilRepository repository = new UtilRepository();
+         public ActionResult CreateBranch()
+        {
+
+
+            return View();
+        }
+        public ActionResult CreateMenuItem()
+         {
+
+            var menuitmeslist = context.MenuItems.ToList();
+            ViewBag.MenuItemId = new SelectList(menuitmeslist , dataValueField: "MenuItemId", dataTextField: "Name");
+            return View();
+         }
+          public ActionResult CreatePrice()
+        {
+            
+            // List<Price> price = context.Prices.ToList();
+            var brancheslist = context.Branches.ToList();
+            ViewBag.BranchId = new SelectList(brancheslist, dataValueField: "BranchId",dataTextField: "Location");
+
+            return View();
+        }
+          [HttpPost]
+        public ActionResult CreateBranch(Branch branch1)
+        {
+            if (ModelState.IsValid)
+            {
+                if (repository.AddBranch(branch1))
+                {
+                    ModelState.Clear();
+                    ViewBag.Message = "Branch Details Added Successfully.";
+                    
+                }
+                return View();
+            }
+            return View();
+        }
+
+
+
+
+        [HttpPost]
+        public ActionResult CreateMenuItem(MenuItem branch1)
+        {
+            var menuitemlist = context.MenuItems.ToList();
+            ViewBag.MenuItemId = new SelectList(menuitemlist , dataValueField: "MenuItemId", dataTextField: "Name");
+
+            if (ModelState.IsValid)
+            {
+                if (repository.AddMenuItem(branch1))
+                {
+                    ModelState.Clear();
+                    ViewBag.Message = "Menu Item Details Added Successfully.";
+
+                }
+                return View();
+            }
+            return View();
+        }
+
+
+
+        public ActionResult PriceList()
+        {
+            SalonContext context = new SalonContext();
+            List<Price> price = context.Prices.ToList();
+            return View(price);
+        }
+
+
+        public ActionResult BranchList()
+        {
+            SalonContext context = new SalonContext();
+            List<Branch> branch = context.Branches.ToList();
+            return View(branch);
+        }
+
+
+        public ActionResult MenuItemList()
+        {
+            SalonContext context = new SalonContext();
+            List<MenuItem> branch = context.MenuItems.ToList();
+            return View(branch);
+        }
+
+        
+
+
+        [HttpPost]
+        public ActionResult CreatePrice(Price branch1)
+        {
+            var brancheslist = context.Branches.ToList();
+            ViewBag.BranchId = new SelectList(brancheslist, dataValueField: "BranchId",dataTextField: "Location");
+
+
+            if (ModelState.IsValid)
+            {
+                if (repository.AddPrice(branch1))
+                {
+                    ModelState.Clear();
+                    ViewBag.Message = "Menu Item Details Added Successfully.";
+
+                }
+                return View();
+            }
+            return View();
+        }
+protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+}
+
+
+
+
+INDEX.CSHTML
+
+@{
+    ViewBag.Title = "Home";
+}
+<Title>Home</Title>
+
+<table style="border-collapse:separate;padding:20px;border-spacing:30px">
+    
+    <tr>
+        
+        <td>@Html.ActionLink("BranchList","BranchList")</td>
+        <td>@Html.ActionLink("MenuItemList","MenuItemList")</td>
+        <td>@Html.ActionLink("PriceList","PriceList")</td>
+    </tr>
+</table>
+
+
+
+BRANCH.CS
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace ASP_EF_App1.Models
+{
+
+    //[Table("tbl_Branch")]
+
+    public class Branch
+    {
+
+
+        [Key]
+        public int Id { get; set; }
+        [Required(ErrorMessage = "Please provide location")]
+        public string Location { get; set; }
+
+        [Required(ErrorMessage = "Please provide description")]
+        public string Description { get; set; }
+        
+    }
+}
+
+
+
+MENUITEM.CS
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace ASP_EF_App1.Models
+{
+    public class MenuItem
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required(ErrorMessage = "Please provide name")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Please provide description")]
+        public string Description { get; set; }
+
+    }
+}
+
+
+PRICE.CS
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Web;
+
+namespace ASP_EF_App1.Models
+{
+    public class Price
+    {
+
+        [Key]
+        public int Id { get; set; }
+        [Required(ErrorMessage = "Please select a branch")]
+        public int BranchId { get; set; }
+        [ForeignKey("BranchId")]
+        public virtual Branch Branch { get; set; }
+
+        [Required(ErrorMessage ="Please select a menu item")]
+        public int MenuItemId { get; set; }
+        [ForeignKey("MenuItemId")]
+        public virtual MenuItem MenuItem { get; set; }
+
+        [Required(ErrorMessage ="Please provide charge")]
+        public double Charge { get; set; }
+
+       
+
+    }
+}
+
+
+
+SALONCONTEXT.CS
+
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+
+namespace ASP_EF_App1.Models
+{
+    public partial class SalonContext : DbContext
+    {
+        // Your context has been configured to use a 'SalonContext' connection string from your application's
+        // configuration file (App.config or Web.config). By default, this connection string targets the
+        // 'SalonPriceFixer.Models.SalonContext' database on your LocalDb instance.
+        //
+        // If you wish to target a different database and/or database provider, modify the 'SalonContext'
+        // connection string in the application configuration file.
+        public SalonContext()
+            : base("name=DataConnection")
+        {
+        }
+
+        public DbSet<Branch> Branches { get; set; }
+        public DbSet<MenuItem> MenuItems { get; set; }
+        public DbSet<Price> Prices { get; set; }
+        public List<Branch> BranchCollection { get; internal set; }
+
+        // Add a DbSet for each entity type that you want to include in your model. For more information
+        // on configuring and using a Code First model, see http://go.microsoft.com/fwlink/?LinkId=390109.
+
+        // public virtual DbSet<MyEntity> MyEntities { get; set; }
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+
+        }
+    }
+
+    //public class MyEntity
+    //{
+    // public int Id { get; set; }
+    // public string Name { get; set; }
+    //}
+}
+
+
+
+SALONREPOSITORY.CS
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+namespace ASP_EF_App1.Models
+{
+    public class UtilRepository
+    {
+        private SalonContext context;
+        public UtilRepository()
+        {
+            context = new SalonContext();
+        }
+
+        public bool AddBranch(Branch branch)
+        {
+            context.Branches.Add(branch);
+            int result = context.SaveChanges();
+            if (result > 0) return true;
+            return false;
+        }
+
+        public bool AddMenuItem(MenuItem item)
+        {
+            context.MenuItems.Add(item);
+            int result = context.SaveChanges();
+            if (result > 0) return true;
+            return false;
+        }
+
+        public bool AddPrice(Price price)
+        {
+            context.Prices.Add(price);
+            int result = context.SaveChanges();
+            if (result > 0) return true;
+            return false;
+        }
+    }
+}
+
+
+
+BRANCHLIST.CHTML
+
+@model IEnumerable<ASP_EF_App1.Models.Branch>
+
+@{
+    ViewBag.Title = "BranchList";
+}
+
+<h2>BranchList</h2>
+
+<p>
+    @Html.ActionLink("Create New", "CreateBranch")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Location)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Location)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+        </td>
+    </tr>
+}
+
+</table>
+
+
+
+
+CREATEBRANCH.CHTML
+
+@model ASP_EF_App1.Models.Branch
+
+@{
+    ViewBag.Title = "CreateBranch";
+
+}
+
+<h2>CreateBranch</h2>
+
+<hr /><h4 id="Message">@ViewBag.Message</h4>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+<div class="form-horizontal">
+  
+    <hr />
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<div class="form-group">
+
+    
+
+    @Html.LabelFor(model => model.Location, htmlAttributes: new { @class = "control-label col-md-2" })
+    <div class="col-md-10">
+        @Html.EditorFor(model => model.Location, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
+    </div>
+</div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Create" class="btn btn-default" />
+        </div>
+    </div>
+</div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+
+CREATEMENUITEM.CHTML
+
+@model ASP_EF_App1.Models.MenuItem
+
+@{
+    ViewBag.Title = "CreateMenuItem";
+}
+
+<h2>CreateMenuItem</h2>
+
+<hr />
+<h4 id="Message">@ViewBag.Message</h4>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+<div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+
+
+CREATEPRIZE.CHTML
+
+@model ASP_EF_App1.Models.Price
+
+@{
+    ViewBag.Title = "CreatePrice";
+}
+
+<h2>CreatePrice</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Price</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.BranchId, "BranchId", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList(name:"BranchId", selectList:null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.BranchId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.MenuItemId, "MenuItemId", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList(name:"MenuItemId", selectList: null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.MenuItemId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Charge, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Charge, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Charge, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+
+
+
+
+
+
+
+
+
+MENUITEMLIST.CHTML
+
+@model IEnumerable<ASP_EF_App1.Models.MenuItem>
+
+@{
+    ViewBag.Title = "MenuItemList";
+}
+
+<h2>MenuItemList</h2>
+
+<p>
+    @Html.ActionLink("Create New", "CreateMenuItem")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+        </td>
+    </tr>
+}
+
+</table>
+
+
+PRICELIST.CHTML
+
+@model IEnumerable<ASP_EF_App1.Models.Price>
+
+@{
+    ViewBag.Title = "PriceList";
+}
+
+<h2>PriceList</h2>
+
+<p>
+    @Html.ActionLink("Create New", "CreatePrice")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Branch.Location)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.MenuItem.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Charge)
+        </th>
+        <th></th>
+    </tr>
+@foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Branch.Location)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MenuItem.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Charge)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+            </td>
+        </tr>
+    }
+
+</table>
