@@ -1,0 +1,16 @@
+﻿@foreach (var employee in Model)
+{
+    <div class="row col-md-4">
+        <table class="@(employee.Permanent ? "font-weight-bold" : "")">
+            <tr>
+                <td>Name:</td>
+                <td>@employee.Name</td>
+            </tr>
+            <tr>
+                <td>Salary:</td>
+                <td>@employee.Salary</td>
+            </tr>
+        </table>
+    </div>
+    <br />
+}
